@@ -14,42 +14,47 @@ import java.nio.file.Paths;
 @Configuration
 public class RedisLuaConfig {
 
-	/*
-	 * Try to Occupy seats through Lua Script
-	 */
-	@Bean(name = "tryOccupySeatScript")
-	public DefaultRedisScript<Long> tryOccupySeatScript() {
-		DefaultRedisScript<Long> script = new DefaultRedisScript<>();
-		ClassPathResource res = new ClassPathResource("lua/occupySeat.lua");
+    /*
+     * Try to Occupy seats through Lua Script
+     */
+    @Bean(name = "tryOccupySeatScript")
+    public DefaultRedisScript<Long> tryOccupySeatScript() {
+        DefaultRedisScript<Long> script = new DefaultRedisScript<>();
+        ClassPathResource res = new ClassPathResource("lua/occupySeat.lua");
 
-		try {
-			String lua = Files.readString(Paths.get(res.getURI()), StandardCharsets.UTF_8);
-			log.trace("[RedisLuaConfig]Loaded Lua script for tryOccupySeat:\n{}", lua);
-			script.setScriptText(lua);
-		} catch (Exception e) {
-			log.error("Failed to load occupySeat.lua from classpath", e);
-			throw new IllegalStateException("Cannot load Lua script", e);
-		}
+        try {
+            String lua = Files.readString(Paths.get(res.getURI()),
+                    StandardCharsets.UTF_8);
+            log.trace(
+                    "[RedisLuaConfig]Loaded Lua script for tryOccupySeat:\n{}",
+                    lua);
+            script.setScriptText(lua);
+        } catch (Exception e) {
+            log.error("Failed to load occupySeat.lua from classpath", e);
+            throw new IllegalStateException("Cannot load Lua script", e);
+        }
 
-		script.setResultType(Long.class);
-		return script;
-	}
+        script.setResultType(Long.class);
+        return script;
+    }
 
-	@Bean(name = "tryReleaseSeatScript")
-	public DefaultRedisScript<Long> tryReleaseSeatScript() {
-		DefaultRedisScript<Long> script = new DefaultRedisScript<>();
-		ClassPathResource res = new ClassPathResource("lua/releaseSeat.lua");
+    @Bean(name = "tryReleaseSeatScript")
+    public DefaultRedisScript<Long> tryReleaseSeatScript() {
+        DefaultRedisScript<Long> script = new DefaultRedisScript<>();
+        ClassPathResource res = new ClassPathResource("lua/releaseSeat.lua");
 
-		try {
-			String lua = Files.readString(Paths.get(res.getURI()));
-			log.trace("[RedisLuaConfig]Loaded Lua script for tryReleaseSeat:\n{}", lua);
-			script.setScriptText(lua);
-		} catch (Exception e) {
-			log.error("Failed to load releaseSeat.lua from classpath", e);
-			throw new IllegalStateException("Cannot load Lua script", e);
-		}
+        try {
+            String lua = Files.readString(Paths.get(res.getURI()));
+            log.trace(
+                    "[RedisLuaConfig]Loaded Lua script for tryReleaseSeat:\n{}",
+                    lua);
+            script.setScriptText(lua);
+        } catch (Exception e) {
+            log.error("Failed to load releaseSeat.lua from classpath", e);
+            throw new IllegalStateException("Cannot load Lua script", e);
+        }
 
-		script.setResultType(Long.class);
-		return script;
-	}
+        script.setResultType(Long.class);
+        return script;
+    }
 }

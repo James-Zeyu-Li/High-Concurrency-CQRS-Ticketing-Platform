@@ -33,7 +33,6 @@ public class TicketPurchaseService implements TicketPurchaseServiceInterface {
     private final ApplicationEventPublisher eventPublisher;
 
     // Persistent through Kafka by spring event
-    @SuppressWarnings({"checkstyle:LineLength", "checkstyle:docs"})
     @Override
     @Transactional
     public TicketRespondDTO purchaseTicket(TicketPurchaseRequestDTO dto) {
@@ -103,7 +102,6 @@ public class TicketPurchaseService implements TicketPurchaseServiceInterface {
     }
 
     // Release seat from Redis
-    @SuppressWarnings("checkstyle:LineLength")
     private void safeReleaseSeat(final TicketPurchaseRequestDTO dto,
                                  final String ticketId,
                                  final Exception original) {

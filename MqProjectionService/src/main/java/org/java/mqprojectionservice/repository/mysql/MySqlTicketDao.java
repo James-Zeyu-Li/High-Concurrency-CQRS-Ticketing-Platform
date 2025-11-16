@@ -5,6 +5,7 @@ import org.java.mqprojectionservice.model.TicketInfo;
 import org.java.mqprojectionservice.model.TicketStatus;
 import org.java.mqprojectionservice.repository.MySqlTicketDAOInterface;
 import org.springframework.dao.DataAccessException;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -31,24 +32,24 @@ public class MySqlTicketDao implements MySqlTicketDAOInterface {
                 """;
 
         try {
-            int rowsAffected =
-                    jdbcTemplate.update(sql, ticketInfo.getTicketId(),
-                            ticketInfo.getVenueId(), ticketInfo.getEventId(),
-                            ticketInfo.getZoneId(), ticketInfo.getRow(),
-                            ticketInfo.getColumn(),
-                            (ticketInfo.getStatus() == null ?
-                                    TicketStatus.PENDING_PAYMENT :
-                                    ticketInfo.getStatus()).name(),
-                            Timestamp.from(ticketInfo.getCreatedOn()));
+            jdbcTemplate.update(sql, ticketInfo.getTicketId(),
+                    ticketInfo.getVenueId(), ticketInfo.getEventId(),
+                    ticketInfo.getZoneId(), ticketInfo.getRow(),
+                    ticketInfo.getColumn(), (ticketInfo.getStatus() == null ?
+                            TicketStatus.PENDING_PAYMENT :
+                            ticketInfo.getStatus()).name(),
+                    Timestamp.from(ticketInfo.getCreatedOn()));
 
-                log.debug(
-                        "[MySqlTicketDao] Successfully persisted ticket with id={}",
-                        ticketInfo.getTicketId());
-            } catch (DataAccessException e) {
-                log.warn(
-                        "[MySqlTicketDao] **SKIPPED** duplicate DB insertion: {}",
-                        ticketInfo.getTicketId());
-            }
+            log.debug(
+                    "[MySqlTicketDao] Successfully persisted ticket with id={}",
+                    ticketInfo.getTicketId());
+        } catch (DuplicateKeyException e) {
+            log.warn("[MySqlTicketDao] **SKIPPED** duplicate DB insertion: {}",
+                    ticketInfo.getTicketId());
+        } catch (DataAccessException e) {
+            log.warn(
+                    "[MySqlTicketDao] DB error, will rethrow for retry. ticketId={}",
+                    ticketInfo.getTicketId(), e);
         }
     }
 }

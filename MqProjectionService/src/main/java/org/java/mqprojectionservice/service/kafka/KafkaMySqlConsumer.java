@@ -27,7 +27,7 @@ public class KafkaMySqlConsumer {
 		return message -> {
 			log.info("【KafkaMQ】Consumer function invoked - message received!");
 			try {
-				MqDTO dto = message.getPayload();
+				MqDTO dto = message.getPayload(); //get message
 				Integer partitionId = message.getHeaders().get("kafka_receivedPartitionId", Integer.class);
 				String partition = partitionId != null ? partitionId.toString() : "unknown";
 				Long offsetId = message.getHeaders().get("kafka_offset", Long.class);

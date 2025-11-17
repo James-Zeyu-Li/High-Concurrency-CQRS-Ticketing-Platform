@@ -42,7 +42,10 @@ CREATE TABLE ticket (
                         col_label   VARCHAR(8)     NOT NULL,
                         status      VARCHAR(32)    NOT NULL DEFAULT 'PENDING_PAYMENT',
                         created_on  DATETIME       NOT NULL,
+
                         FOREIGN KEY (venue_id) REFERENCES venue(venue_id),
                         FOREIGN KEY (event_id) REFERENCES event(event_id),
-                        FOREIGN KEY (venue_id, zone_id) REFERENCES zone(venue_id, zone_id)
+                        FOREIGN KEY (venue_id, zone_id) REFERENCES zone(venue_id, zone_id),
+
+                        UNIQUE KEY unique_seat (event_id, zone_id, row_label, col_label)
 );

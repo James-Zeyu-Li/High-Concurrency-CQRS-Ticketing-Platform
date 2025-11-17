@@ -52,3 +52,4 @@ RabbitCombinedConsumer/HELP.md
 .idea/compiler.xml
 PurchaseService/.DS_Store
 .idea/
+deployment/terraform/terraform.tfvars

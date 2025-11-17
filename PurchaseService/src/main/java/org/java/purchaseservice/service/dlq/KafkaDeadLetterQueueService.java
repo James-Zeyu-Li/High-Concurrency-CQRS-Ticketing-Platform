@@ -3,6 +3,8 @@ package org.java.purchaseservice.service.dlq;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -18,38 +20,44 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class KafkaDeadLetterQueueService implements DeadLetterQueueService {
 
-	private final ObjectMapper objectMapper;
+    private static final Logger DLQ_LOGGER = LoggerFactory.getLogger("DLQ");
+    private final ObjectMapper objectMapper;
 
-	@Override
-	public void sendToDeadLetterQueue(String payload, String partitionKey, String errorReason) {
-		try {
+    @Override
+    public void sendToDeadLetterQueue(String payload, String partitionKey,
+                                      String errorReason) {
+        try {
 
-			Map<String, Object> dlqMessage = new HashMap<>();
-			dlqMessage.put("originalPayload", payload);
-			dlqMessage.put("partitionKey", partitionKey);
-			dlqMessage.put("errorReason", errorReason);
-			dlqMessage.put("timestamp", Instant.now().toString());
-			dlqMessage.put("retryCount", 0);
-			dlqMessage.put("retryable", true);
-			dlqMessage.put("serviceName", "PurchaseService");
+            Map<String, Object> dlqMessage = new HashMap<>();
+            dlqMessage.put("originalPayload", payload);
+            dlqMessage.put("partitionKey", partitionKey);
+            dlqMessage.put("errorReason", errorReason);
+            dlqMessage.put("timestamp", Instant.now().toString());
+            dlqMessage.put("retryCount", 0);
+            dlqMessage.put("retryable", true);
+            dlqMessage.put("serviceName", "PurchaseService");
 
-			// serialize to JSON
-			String dlqPayload = objectMapper.writeValueAsString(dlqMessage);
+            // serialize to JSON
+            String dlqPayload = objectMapper.writeValueAsString(dlqMessage);
 
-			//Save the error as log
-			log.error("【DLQ】==================== DEAD LETTER QUEUE ====================");
-			log.error("【DLQ】Partition Key: {}", partitionKey);
-			log.error("【DLQ】Error Reason: {}", errorReason);
-			log.error("【DLQ】Timestamp: {}", dlqMessage.get("timestamp"));
-			log.error("【DLQ】Full DLQ Message: {}", dlqPayload);
-			log.error("【DLQ】============================================================");
+            //Save the error as log
+            log.error(
+                    "【DLQ】==================== DEAD LETTER QUEUE ====================");
+            log.error("【DLQ】Partition Key: {}", partitionKey);
+            log.error("【DLQ】Error Reason: {}", errorReason);
+            log.error("【DLQ】Timestamp: {}", dlqMessage.get("timestamp"));
+            log.error("【DLQ】Full DLQ Message: {}", dlqPayload);
+            log.error(
+                    "【DLQ】============================================================");
 
-		} catch (Exception e) {
-			log.error("【DLQ】CRITICAL: Failed to serialize DLQ message!");
-			log.error("【DLQ】Partition Key: {}", partitionKey);
-			log.error("【DLQ】Error Reason: {}", errorReason);
-			log.error("【DLQ】Original Payload: {}", payload);
-			log.error("【DLQ】Serialization Error: {}", e.getMessage(), e);
-		}
-	}
+            DLQ_LOGGER.error(dlqPayload);
+
+        } catch (Exception e) {
+            log.error("【DLQ】CRITICAL: Failed to serialize DLQ message!");
+            log.error("【DLQ】Partition Key: {}", partitionKey);
+            log.error("【DLQ】Error Reason: {}", errorReason);
+            log.error("【DLQ】Original Payload: {}", payload);
+            log.error("【DLQ】Serialization Error: {}", e.getMessage(), e);
+        }
+    }
 }

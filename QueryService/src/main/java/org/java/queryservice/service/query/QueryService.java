@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.java.queryservice.dto.TicketInfoDTO;
 import org.java.queryservice.dto.ZoneDTO;
+import org.java.queryservice.dto.ZoneSeatMapDTO;
 import org.java.queryservice.exception.TicketNotFoundException;
 import org.java.queryservice.mapper.TicketMapper;
 import org.java.queryservice.model.Event;
@@ -15,6 +16,7 @@ import org.java.queryservice.model.Zone;
 import org.java.queryservice.repository.mysql.EventRepository;
 import org.java.queryservice.repository.mysql.TicketInfoRepository;
 import org.java.queryservice.service.QueryServiceInterface;
+import org.java.queryservice.service.redisGet.RedisService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,6 +28,7 @@ public class QueryService implements QueryServiceInterface {
   private final TicketInfoRepository ticketInfoRepository;
   private final TicketMapper tickerMapper;
   private final EventRepository eventRepository;
+  private final RedisService redisService;
 
   // find ticket by ID
   @Override
@@ -64,8 +67,7 @@ public class QueryService implements QueryServiceInterface {
   public List<TicketInfoDTO> getAllSoldTickets() {
     log.debug("[QueryService][getAllSoldTickets] start");
     List<TicketInfo> tickets = ticketInfoRepository.findAll();
-    List<TicketInfoDTO> result = tickets.stream()
-        .map(tickerMapper::toInfoDto)
+    List<TicketInfoDTO> result = tickets.stream().map(tickerMapper::toInfoDto)
         .collect(Collectors.toList());
     log.debug("[QueryService][getAllSoldTickets] found {} tickets", result.size());
     return result;
@@ -83,13 +85,33 @@ public class QueryService implements QueryServiceInterface {
     }
 
     List<Zone> zones = event.getVenueID().getZones();
-    List<ZoneDTO> zoneDTOs = zones.stream()
-        .map(zone -> new ZoneDTO(zone.getZoneId(), zone.getPosX(), zone.getPosY(),
-            zone.getColCount(), zone.getRowCount(), zone.getTicketPrice()))
-        .collect(Collectors.toList());
+    List<ZoneDTO> zoneDTOs = zones.stream().map(
+        zone -> new ZoneDTO(zone.getZoneId(), zone.getPosX(), zone.getPosY(), zone.getColCount(),
+            zone.getRowCount(), zone.getTicketPrice())).collect(Collectors.toList());
 
     log.debug("[QueryService][getEventLayout] found {} zones for eventId={}", zoneDTOs.size(),
         eventId);
     return zoneDTOs;
+  }
+
+  /**
+   * Gets the seat map for a specific zone and returns it as a Base64 encoded string.
+   */
+  public ZoneSeatMapDTO getZoneSeatMap(String eventId, int zoneId) {
+    log.debug("[QueryService][getZoneSeatMap] start for eventId={}, zoneId={}", eventId, zoneId);
+
+    byte[] bitmapBytes = redisService.getZoneSeatMap(eventId, zoneId);
+
+    if (bitmapBytes == null) {
+      log.warn("[QueryService][getZoneSeatMap] Seat map not found for eventId={}, zoneId={}",
+          eventId, zoneId);
+      return null;
+    }
+
+    String base64Bitmap = java.util.Base64.getEncoder().encodeToString(bitmapBytes);
+
+    log.debug("[QueryService][getZoneSeatMap] found bitmap for eventId={}, zoneId={}", eventId,
+        zoneId);
+    return new ZoneSeatMapDTO(base64Bitmap);
   }
 }

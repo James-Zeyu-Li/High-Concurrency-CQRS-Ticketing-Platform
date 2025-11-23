@@ -7,8 +7,10 @@ import java.util.Map;
 import org.java.queryservice.dto.ErrorMessage;
 import org.java.queryservice.dto.TicketInfoDTO;
 import org.java.queryservice.dto.ZoneDTO;
+import org.java.queryservice.dto.ZoneSeatMapDTO;
 import org.java.queryservice.exception.TicketNotFoundException;
 import org.java.queryservice.service.QueryServiceInterface;
+import org.java.queryservice.service.RedisServiceInterface;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,19 +23,19 @@ import org.springframework.web.bind.annotation.RestController;
 public class TicketQueryController {
 
   private final QueryServiceInterface queryService;
-//  private final RedisService redisService;
+  private final RedisServiceInterface redisService;
 
-  public TicketQueryController(QueryServiceInterface queryService) {
+  public TicketQueryController(QueryServiceInterface queryService,
+      RedisServiceInterface redisService) {
     this.queryService = queryService;
-    // , RedisService redisService
-//    this.redisService = redisService;
+    this.redisService = redisService;
   }
 
   @GetMapping("/{ticketId}")
   public ResponseEntity<?> getTicket(@PathVariable("ticketId") String ticketId) {
     try {
-      TicketInfoDTO ticketInfoDTO = queryService.getTicket(ticketId);
-      return ResponseEntity.ok(ticketInfoDTO);
+      TicketInfoDTO ticketInfoDto = queryService.getTicket(ticketId);
+      return ResponseEntity.ok(ticketInfoDto);
     } catch (TicketNotFoundException e) {
       return ResponseEntity.status(HttpStatus.NOT_FOUND)
           .body(new ErrorMessage("TicketID not found: " + ticketId));
@@ -88,7 +90,23 @@ public class TicketQueryController {
    */
   @GetMapping("/events/{eventId}/layout")
   public ResponseEntity<List<ZoneDTO>> getEventZones(@PathVariable("eventId") String eventId) {
+
     List<ZoneDTO> layout = queryService.getEventLayout(eventId);
     return ResponseEntity.ok(layout);
+  }
+
+  // This method is used to get the Bitmap in Redis, translated by Redis Service function
+  @GetMapping("/events/{eventId}/zones/{zoneId}/seatMap")
+  public ResponseEntity<ZoneSeatMapDTO> getEventSeatMap(
+      @PathVariable("eventId") String eventId,
+      @PathVariable("zoneId") int zoneId) {
+
+    ZoneSeatMapDTO seatMap = queryService.getZoneSeatMap(eventId, zoneId);
+
+    if (seatMap == null) {
+      return ResponseEntity.notFound().build();
+    }
+
+    return ResponseEntity.ok(seatMap);
   }
 }

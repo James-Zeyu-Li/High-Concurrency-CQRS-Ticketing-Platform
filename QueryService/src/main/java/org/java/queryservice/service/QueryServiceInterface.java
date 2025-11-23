@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.util.List;
 import org.java.queryservice.dto.TicketInfoDTO;
 import org.java.queryservice.dto.ZoneDTO;
+import org.java.queryservice.dto.ZoneSeatMapDTO;
 
 public interface QueryServiceInterface {
 
@@ -16,4 +17,6 @@ public interface QueryServiceInterface {
   List<TicketInfoDTO> getAllSoldTickets();
 
   List<ZoneDTO> getEventLayout(String eventId);
+
+  ZoneSeatMapDTO getZoneSeatMap(String eventId, int zoneId);
 }

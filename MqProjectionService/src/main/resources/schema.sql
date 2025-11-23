@@ -18,6 +18,9 @@ CREATE TABLE zone (
                       ticket_price  DECIMAL(10,2)  NOT NULL,
                       row_count     INT            NOT NULL,
                       col_count     INT            NOT NULL,
+                      pos_x INT,
+                      pos_y INT,
+
                       PRIMARY KEY (venue_id, zone_id),
                       FOREIGN KEY (venue_id) REFERENCES venue(venue_id)
 );

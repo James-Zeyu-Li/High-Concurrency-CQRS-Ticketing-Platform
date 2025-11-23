@@ -1,20 +1,19 @@
 package org.java.queryservice.service;
 
-import org.java.queryservice.dto.EventLayoutDTO;
+import java.math.BigDecimal;
+import java.util.List;
 import org.java.queryservice.dto.TicketInfoDTO;
 import org.java.queryservice.dto.ZoneDTO;
 
-import java.math.BigDecimal;
-import java.util.List;
-
 public interface QueryServiceInterface {
-	TicketInfoDTO getTicket(String ticketId);
 
-	int countTicketSoldByEvent(String eventId);
+  TicketInfoDTO getTicket(String ticketId);
 
-	BigDecimal sumRevenueByVenueAndEvent(String venueId, String eventId);
+  int countTicketSoldByEvent(String eventId);
 
-	List<TicketInfoDTO> getAllSoldTickets();
+  BigDecimal sumRevenueByVenueAndEvent(String venueId, String eventId);
 
-	List<ZoneDTO> getEventLayout(String eventId);
+  List<TicketInfoDTO> getAllSoldTickets();
+
+  List<ZoneDTO> getEventLayout(String eventId);
 }

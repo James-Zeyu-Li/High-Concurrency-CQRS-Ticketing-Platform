@@ -67,16 +67,7 @@ public class VenueConfigService implements InitializingBean {
             log.warn("[VenueConfigService] No venues found in configuration");
         }
 
-        try {
-            // Backward compatibility default venue
-            initializeBackwardCompatibilityVenue();
-            log.info(
-                    "[VenueConfigService] Backward compatibility venue initialized");
-        } catch (Exception e) {
-            log.error(
-                    "[VenueConfigService] Failed to initialize backward compatibility venue: {}",
-                    e.getMessage(), e);
-        }
+
 
         log.info("[VenueConfigService] Venue initialization completed");
     }
@@ -102,30 +93,7 @@ public class VenueConfigService implements InitializingBean {
         }
     }
 
-    /**
-     * Initializes backward compatibility venue using default config.
-     * Flow: Business Venue1 → Overridden by Technical Standard → Final Venue1
-     * Result: Venue1 = 100 zones × 26 rows × 30 cols = 78,000 seats (standardized)
-     */
-    private void initializeBackwardCompatibilityVenue() {
-        // Use default-config to create standard Venue1
-        // This OVERRIDES any previous Venue1 configuration from venues.map
-        var defaultConfig = venueConfig.getDefaultConfig().getZones();
-        String venueId = "Venue1";
-        int zoneCount =
-                defaultConfig.getZoneCount();  // 100 zones (standardized)
-        int rowCount = defaultConfig.getRowCount();    // 26 rows (standardized)
-        int colCount = defaultConfig.getColCount();    // 30 cols (standardized)
 
-        log.info(
-                "[VenueConfigService] Initializing backward compatibility venue: {}",
-                venueId);
-
-        // Ensures Venue1 always has the same structure
-        for (int zoneId = 1; zoneId <= zoneCount; zoneId++) {
-            initializeVenueZone(venueId, zoneId, rowCount, colCount);
-        }
-    }
 
     /**
      * Initializes a venue zone in Redis with capacity and structure metadata.

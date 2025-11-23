@@ -38,9 +38,9 @@ events:
 
     - event-id: "Event6"
       name: "Event6"
-      type: "Conference"
+      type: "Movie"
       date: "2025-11-10"
-      venue-id: "Venue4"
+      venue-id: "Venue6"
       enabled: true
 
     - event-id: "Event7"

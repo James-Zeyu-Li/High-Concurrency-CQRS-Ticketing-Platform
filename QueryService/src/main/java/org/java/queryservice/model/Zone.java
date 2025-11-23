@@ -20,11 +20,18 @@ public class Zone {
 
 	@Column(name = "ticket_price")
 	private BigDecimal ticketPrice;
-	private int rowCount;
-	private int colCount;
+
+	private Integer rowCount;
+	private Integer colCount;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "venue_id")
 	@ToString.Exclude
 	private Venue venue;
+
+    @Column(name = "pos_x")
+    private Integer posX;
+
+    @Column(name = "pos_y")
+    private Integer posY;
 }

@@ -7,9 +7,8 @@ import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
 public interface TicketMapper {
-
-	// Entity -> DTO
-	@Mapping(source = "row", target = "row")
-	@Mapping(source = "column", target = "column")
-	TicketInfoDTO toInfoDto(TicketInfo entity);
+    // Entity -> DTO
+    @Mapping(source = "row", target = "row")
+    @Mapping(source = "column", target = "column")
+    TicketInfoDTO toInfoDto(TicketInfo entity);
 }

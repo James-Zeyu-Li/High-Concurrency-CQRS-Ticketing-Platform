@@ -3,9 +3,13 @@ package org.java.queryservice.service.query;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.java.queryservice.dto.TicketInfoDTO;
+import org.java.queryservice.dto.ZoneDTO;
 import org.java.queryservice.exception.TicketNotFoundException;
 import org.java.queryservice.mapper.TicketMapper;
+import org.java.queryservice.model.Event;
 import org.java.queryservice.model.TicketInfo;
+import org.java.queryservice.model.Zone;
+import org.java.queryservice.repository.mysql.EventRepository;
 import org.java.queryservice.repository.mysql.TicketInfoRepository;
 import org.java.queryservice.service.QueryServiceInterface;
 import org.springframework.stereotype.Service;
@@ -21,6 +25,7 @@ import java.util.stream.Collectors;
 public class QueryService implements QueryServiceInterface {
 	private final TicketInfoRepository ticketInfoRepository;
 	private final TicketMapper tickerMapper;
+	private final EventRepository eventRepository;
 
 	// find ticket by ID
 	@Override
@@ -64,4 +69,24 @@ public class QueryService implements QueryServiceInterface {
 		log.debug("[QueryService][getAllSoldTickets] found {} tickets", result.size());
 		return result;
 	}
+
+	@Override
+	@Transactional(readOnly = true)
+    public List<ZoneDTO> getEventLayout(String eventId){
+		log.debug("[QueryService][getEventLayout] start for eventId={}", eventId);
+
+		Event event = eventRepository.findById(eventId).orElse(null);
+		if (event == null) {
+			log.warn("[QueryService][getEventLayout] Event not found: {}", eventId);
+			return List.of();
+		}
+
+		List<Zone> zones = event.getVenueID().getZones();
+		List<ZoneDTO> zoneDTOs = zones.stream()
+			.map(zone -> new ZoneDTO(zone.getZoneId(), zone.getPosX(), zone.getPosY(), zone.getColCount(), zone.getRowCount(), zone.getTicketPrice()))
+			.collect(Collectors.toList());
+
+		log.debug("[QueryService][getEventLayout] found {} zones for eventId={}", zoneDTOs.size(), eventId);
+		return zoneDTOs;
+    }
 }

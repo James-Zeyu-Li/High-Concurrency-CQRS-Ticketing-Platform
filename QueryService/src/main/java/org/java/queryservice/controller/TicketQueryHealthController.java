@@ -8,8 +8,10 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/v1")
 public class TicketQueryHealthController {
-	@GetMapping("/health")
-	public ResponseEntity<String> health() {
-		return ResponseEntity.ok("Query Service is healthy! Available endpoints: /tickets/{id}, /tickets, /tickets/count/{eventId}");
-	}
+
+  @GetMapping("/health")
+  public ResponseEntity<String> health() {
+    return ResponseEntity.ok(
+        "Query Service is healthy! Available endpoints: /tickets/{id}, /tickets, /tickets/count/{eventId}");
+  }
 }
